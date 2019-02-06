@@ -1,0 +1,32 @@
+proxy:
+  port: 8080
+  authentication: simple
+  admin-groups: admins
+  users:
+  - name: Tom
+    password: Tom@123
+    groups: admins
+  - name: Jon
+    password: Jon@123
+    groups: admins
+  - name: Adam
+    password: Adam@123
+  - name: Guest
+    password: Guest@123
+  container-backend: kubernetes
+  kubernetes:
+    internal-networking: true
+    url: http://localhost:8001
+    namespace: shiny
+    image-pull-policy: IfNotPresent
+    image-pull-secret: ${secret_name} 
+  specs:
+  - id: Telephone_Application
+    display-name: Telephones by region
+    description: Application which shows telephone by region
+    container-cmd: ["R", "-e", "shiny::runApp('/app/Shiny')"]
+    container-image: ${registry_name}.azurecr.io/shiny-application:latest
+
+logging:
+  file:
+    shinyproxy.log
