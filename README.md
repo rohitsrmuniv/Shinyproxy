@@ -8,7 +8,7 @@ in the same cluster. To make the application accessible outside the cluster, a N
 1. Build the docker image for kube-proxy-sidecar first and push it to container registry:
 
 	`sudo docker build -t ${registry_name}.azurecr.io/kube-proxy-sidecar:0.1.0 kube-proxy-sidecar/`
-	`sudo docker push ${registry_name}.azurecr.io/kube-proxy-sidecar:0.1.0`
+	 `sudo docker push ${registry_name}.azurecr.io/kube-proxy-sidecar:0.1.0`
 
 2. Create a new namespace as "shiny" in your kubernetes cluster. We will do deployments, service and authorization in the same namespace.
 
