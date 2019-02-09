@@ -15,14 +15,14 @@ spec:
     spec:
       containers:
       - name: shinyproxy
-        image: fsotcontainerregiestry.azurecr.io/shinyproxy-fci:v3.0
+        image: ${registry_name}.azurecr.io/shinyproxy-application:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
       - name: kube-proxy-sidecar
-        image: fsotcontainerregiestry.azurecr.io/kube-proxy-sidecar:0.1.0-gd712082
+        image: ${registry_name}.azurecr.io/kube-proxy-sidecar:0.1.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8001
       imagePullSecrets:
-      - name: fsotcontainerregiestry
+      - name: ${SecretForDockerRegistry}

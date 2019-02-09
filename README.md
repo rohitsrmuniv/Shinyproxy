@@ -1,41 +1,34 @@
-# Example: containerized ShinyProxy with a Kubernetes cluster
+# Example: containerized ShinyProxy in a Kubernetes cluster
 
 In this example, ShinyProxy will run inside a Kubernetes cluster. Shiny containers will also be spawned
 in the same cluster. To make the application accessible outside the cluster, a NodePort service is created.
 
 ## How to run
 
-1. Download the `Dockerfile` from the folder `kube-proxy-sidecar`.
-2. Open a terminal, go to the directory containing the Dockerfile, and run the following command to build it:
+1. Build the docker image for kube-proxy-sidecar first and push it to container registry:
 
-`sudo docker build . -t kube-proxy-sidecar`
+`sudo docker build -t ${registry_name}.azurecr.io/kube-proxy-sidecar:0.1.0 kube-proxy-sidecar/`
+`sudo docker push ${registry_name}.azurecr.io/kube-proxy-sidecar:0.1.0`
 
-3. Ensure the `kube-proxy-sidecar` image is available on all your kube nodes. E.g. by repeating the above steps on all nodes.
-4. Download the `Dockerfile` from the folder `shinyproxy-example`.
-5. Open a terminal, go to the directory containing the Dockerfile, and run the following command to build it:
+2. Create a new namespace as "shiny" in your kubernetes cluster. We will do deployments, service and authorization in the same namespace.
 
-`sudo docker build . -t shinyproxy-example`
+`kubectl create ns shiny`
 
-6. Ensure the `shinyproxy-example` image is available on all your kube nodes.
-7. Open a terminal on a master node (where the `kubectl` command is available).
+3. Go to folder shinyproxy-application and replace ${SecretForDockerRegistry} and ${registry_name} in application.yml with your docker container registry secrets and it's name. On top I created Tom and Jon login users as admin and Guest user as non-admin user
 
-8. Download the 3 `yaml` files from the folder where this README is located. 
-9. Run the following command to deploy a pod containing `shinyproxy-example` and `kube-proxy-sidecar`:
+`sudo docker build -t ${registry_name}.azurecr.io/shinyproxy-application:latest shinyproxy-application/`
+`sudo docker push ${registry_name}.azurecr.io/shinyproxy-application:latest`
+
+4. Run the below command to do a deployment which will create the pod having two containers 'shinyproxy-application' and 'kube-proxy-sidecar' in the namespace shiny:
 
 `kubectl create -f sp-deployment.yaml`
 
-10. Run the following command to grant full privileges to the `default` service account which runs the above pod:
+5. Run the below command to grant full privileges to the 'default' service account which runs the above pod in namespace shiny:
 
 `kubectl create -f sp-authorization.yaml`
 
-11. Run the following command to deploy a service exposing ShinyProxy outside the cluster:
+6. Run the below command to expose the shinyproxy service as LoadBalancer which will assign a public ip and make the service available on port 80. If you don't want public ip for the service you can always use type as NodePort with port assign at nodePort (https://github.com/openanalytics/shinyproxy-config-examples/blob/master/03-containerized-kubernetes/sp-service.yaml) :
 
 `kubectl create -f sp-service.yaml`
 
-## Notes on the configuration
-
-* The `kube-proxy-sidecar` container is used to make the apiserver accessible on `http://localhost:8001` to the `shinyproxy-example` container.
-
-* The service will expose ShinyProxy on all nodes, listening on port `32094`.
-
-* If you do not deploy the service, you can still access ShinyProxy from within the cluster on port `8080`.
+7. Once the service and pod is up and running, you can click on External Endpoints or use kube port-forward pod command

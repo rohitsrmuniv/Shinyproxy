@@ -19,13 +19,13 @@ proxy:
     url: http://localhost:8001
     namespace: shiny
     image-pull-policy: IfNotPresent
-    image-pull-secret: ${secret_name} 
+    image-pull-secret: ${SecretForDockerRegistry} 
   specs:
   - id: Telephone_Application
     display-name: Telephones by region
     description: Application which shows telephone by region
     container-cmd: ["R", "-e", "shiny::runApp('/app/Shiny')"]
-    container-image: ${registry_name}.azurecr.io/shiny-application:latest
+    container-image: ${registry_name}.azurecr.io/Rshiny-application:latest
 
 logging:
   file:
